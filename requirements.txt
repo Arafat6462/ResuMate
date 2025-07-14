@@ -1,0 +1,19 @@
+# Django Core
+django
+djangorestframework
+psycopg2-binary
+python-dotenv
+gunicorn
+
+# JWT Authentication
+djangorestframework-simplejwt
+
+# PDF Generation
+weasyprint
+
+# AI Integration
+google-generativeai
+
+# Testing
+pytest
+pytest-django
