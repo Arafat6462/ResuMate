@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     # 3rd Party Apps
     'rest_framework',
     'rest_framework_simplejwt',
+
+    # Local Apps
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
