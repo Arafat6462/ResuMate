@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: resumate_backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_NAME=resumate_db
+      - DB_USER=resumate_user
+      - DB_PASSWORD=resumate_password
+      - DB_HOST=db
+      - DB_PORT=5432
+
+  db:
+    image: postgres:13
+    container_name: resumate_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=resumate_db
+      - POSTGRES_USER=resumate_user
+      - POSTGRES_PASSWORD=resumate_password
+
+volumes:
+  postgres_data:
