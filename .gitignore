@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-wheel-metadata/
+.idea/
+.vscode/
+
+# Django
+*.log
+db.sqlite3
+
+# Environment
+.env
+
+# Static files
+/static/
+
+# Media files
+/media/
+
+.gemini/
