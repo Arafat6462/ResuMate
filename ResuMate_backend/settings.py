@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # Local Apps
     'users.apps.UsersConfig',
     'resume.apps.ResumeConfig',
+    'ai.apps.AiConfig',
 ]
 
 MIDDLEWARE = [
