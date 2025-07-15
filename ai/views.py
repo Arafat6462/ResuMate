@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -20,7 +21,8 @@ class ListAIModelsView(APIView):
 
 class GenerateResumeView(APIView):
     """
-    Receives user input and a model choice, then generates a resume.
+    Receives user input and a model choice, then generates and saves a resume.
+    Returns the ID of the newly created resume.
     """
     permission_classes = [AllowAny]
 
@@ -31,12 +33,29 @@ class GenerateResumeView(APIView):
 
         model_instance = serializer.validated_data['model']
         user_input = serializer.validated_data['user_input']
+        title = serializer.validated_data.get('title', 'Untitled Resume')
 
         try:
             ai_response_text = generate_resume_content(model_instance, user_input)
-            
-            # For now, we just return the content. Saving will be a separate step.
-            return Response({"content": ai_response_text}, status=status.HTTP_200_OK)
+
+            # Determine the user for the resume
+            if request.user.is_authenticated:
+                user = request.user
+            else:
+                # Get or create the dedicated anonymous user
+                user, _ = User.objects.get_or_create(
+                    username='anonymous_user',
+                    defaults={'is_active': False} # This user cannot log in
+                )
+
+            # Create and save the new resume
+            new_resume = Resume.objects.create(
+                user=user,
+                title=title,
+                content=ai_response_text
+            )
+
+            return Response({"resume_id": new_resume.id}, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
