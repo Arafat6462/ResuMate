@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'resume.apps.ResumeConfig',
     'ai.apps.AiConfig',
+    'job_tracker.apps.JobTrackerConfig',
 ]
 
 MIDDLEWARE = [
