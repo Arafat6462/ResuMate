@@ -1,7 +1,5 @@
 import os
-import google.generativeai as genai
-# from google import genai
-
+from google import genai
 from openai import OpenAI
 from .models import AIModel
 
@@ -19,11 +17,9 @@ def generate_resume_content(model_instance: AIModel, user_input: str) -> str:
         if model_instance.api_provider == 'google_gemini':
             # Direct implementation based on user's working code
             client = genai.Client(api_key=api_key)
-            response = client.generate_content(
-                model=model_instance.model_name,
-                contents=prompt,
-                generation_config={"temperature": 0.7}
-            )
+            response = client.models.generate_content(
+                model=model_instance.model_name, contents=prompt
+                )
             return response.text
 
         elif model_instance.api_provider == 'open_router':

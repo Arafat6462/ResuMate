@@ -19,7 +19,7 @@ class ResumeGenerationSerializer(serializers.Serializer):
     Serializer to validate the request for generating a resume.
     """
     model = serializers.CharField(required=True)
-    user_input = serializers.CharField(required=True, min_length=100)
+    user_input = serializers.CharField(required=True, min_length=50)
 
     def validate_model(self, value):
         """

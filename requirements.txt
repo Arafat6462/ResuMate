@@ -13,7 +13,6 @@ weasyprint
 
 # AI Integration
 openai
-google-generativeai
 google-genai
 
 # Testing
