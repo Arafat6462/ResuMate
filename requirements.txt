@@ -8,10 +8,11 @@ gunicorn
 # JWT Authentication
 djangorestframework-simplejwt
 
-# PDF Generation
+# PDF Generation (for later)
 weasyprint
 
 # AI Integration
+openai
 google-generativeai
 
 # Testing

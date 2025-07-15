@@ -16,6 +16,9 @@ db.sqlite3
 
 # Environment
 .env
+.env.*
+!.env.example
+
 
 # Static files
 /static/
@@ -24,3 +27,5 @@ db.sqlite3
 /media/
 
 .gemini/
+
+.env.example
