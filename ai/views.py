@@ -55,7 +55,7 @@ class GenerateResumeView(APIView):
                 content=ai_response_text
             )
 
-            return Response({"resume_id": new_resume.id}, status=status.HTTP_201_CREATED)
+            return Response({"resume_id": new_resume.id, "content": ai_response_text}, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
