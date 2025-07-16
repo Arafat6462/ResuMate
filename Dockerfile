@@ -25,8 +25,6 @@ COPY . .
 #    - Inform Docker that the application inside the container will listen on port 8000.
 EXPOSE 8000
 
-COPY wait-for-it.sh /usr/local/bin/
-
 # 7. Set Default Command for Production:
 #    - Run database migrations and start Gunicorn as the production WSGI server.
-CMD ["wait-for-it.sh", "db:5432", "--", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["sh", "-c","print('Hello from Docker!')", "python manage.py migrate && gunicorn ResuMate_backend.wsgi:application --bind 0.0.0.0:$PORT"]
