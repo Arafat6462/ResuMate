@@ -36,6 +36,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
       # Step 3: Run tests using pytest
       # This command starts the services and executes the tests inside the "backend" container.
