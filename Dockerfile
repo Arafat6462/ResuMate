@@ -25,8 +25,6 @@ COPY . .
 #    - Inform Docker that the application inside the container will listen on port 8000.
 EXPOSE 8000
 
-# 7. Set Default Command:
-#    - The command to run when the container starts.
-#    - We will set this up properly later. For now, we just keep it simple.
-#    - This will be replaced by a startup script later to run migrations and start gunicorn.
-CMD ["python", "-c", "print('Hello from Docker!')"]
+# 7. Set Default Command for Production:
+#    - Run database migrations and start Gunicorn as the production WSGI server.
+CMD ["sh", "-c", "python manage.py migrate && gunicorn ResuMate_backend.wsgi:application --bind 0.0.0.0:$PORT"]

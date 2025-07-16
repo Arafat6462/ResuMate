@@ -20,6 +20,7 @@ services:
       - DB_PORT=5432
       - GEMINI_API_KEY
       - OPENROUTER_API_KEY
+      - SECRET_KEY
 
   db:
     image: postgres:16
