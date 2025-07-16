@@ -33,6 +33,9 @@ jobs:
       # It doesn't run them yet, it just builds them. This is a crucial check to ensure your Dockerfile is valid.
       - name: Build and start services
         run: docker compose up --build -d
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       # Step 3: Run tests using pytest
       # This command starts the services and executes the tests inside the "backend" container.
@@ -85,8 +88,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/your-drf-api-project:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_USERNAME }}/your-drf-api-project:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ResuMate:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ResuMate:latest
 
       # --------------------------------------------------------------------
       # --- DEPLOYMENT TO SERVER (COMMENTED OUT) ---

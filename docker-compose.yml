@@ -19,6 +19,8 @@ services:
       - DB_PASSWORD=resumate_password
       - DB_HOST=db
       - DB_PORT=5432
+      - GEMINI_API_KEY
+      - OPENROUTER_API_KEY
 
   db:
     image: postgres:16
