@@ -1,3 +1,5 @@
 from django.test import TestCase
 
-# Create your tests here.
+class AITestCase(TestCase):
+    def test_ai_placeholder(self):
+        self.assertTrue(True) # Placeholder test, to be replaced with actual AI integration tests
