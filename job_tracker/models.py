@@ -11,11 +11,11 @@ class JobApplication(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    job_title = models.CharField(max_length=255)
-    company_name = models.CharField(max_length=255)
-    original_job_description = models.TextField()
+    job_title = models.CharField(max_length=255, null=True, blank=True)
+    company_name = models.CharField(max_length=255, null=True, blank=True)
+    original_job_description = models.TextField(null=True, blank=True)
     resume_used = models.ForeignKey(Resume, on_delete=models.SET_NULL, null=True, blank=True)
-    date_applied = models.DateField()
+    date_applied = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Applied')
     notes = models.TextField(blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
