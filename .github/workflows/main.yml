@@ -88,8 +88,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/ResuMate:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_USERNAME }}/ResuMate:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/resumate:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/resumate:latest
 
       # --------------------------------------------------------------------
       # --- DEPLOYMENT TO SERVER (COMMENTED OUT) ---
