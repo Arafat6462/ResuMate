@@ -11,7 +11,8 @@ services:
       - "8000:8000"
     
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DB_NAME=resumate_db
       - DB_USER=resumate_user
@@ -31,6 +32,11 @@ services:
       - POSTGRES_DB=resumate_db
       - POSTGRES_USER=resumate_user
       - POSTGRES_PASSWORD=resumate_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resumate_user -d resumate_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
