@@ -1,111 +1,105 @@
+# This is the name of our GitHub Actions workflow.
+name: CI/CD for ResuMate
 
-# This is the name of our workflow. It will be displayed in the "Actions" tab of your GitHub repository.
-name: Django CI/CD
-
-# This section defines the trigger for the workflow.
-# We are telling GitHub to run this pipeline automatically on every "push" event to the "master" branch.
+# This section defines when the workflow will run.
 on:
+  # We want it to run on every push to the 'main' branch.
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
-# This section defines the jobs that will be executed as part of the pipeline.
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel.
 jobs:
-  #--------------------------------------------------
-  # JOB 1: Continuous Integration (CI)
-  # The purpose of this job is to run tests and linting to ensure code quality.
-  #--------------------------------------------------
-  ci:
-    # This sets the name of the job that you'll see in the GitHub UI.
-    name: Continuous Integration
-
-    # This specifies the type of machine to run the job on. "ubuntu-latest" is a standard, reliable choice.
+  # The first job is to build our Django Docker image and push it to Docker Hub.
+  build-and-push:
+    # The type of runner that the job will run on. We use the latest Ubuntu.
     runs-on: ubuntu-latest
-
-    # These are the individual steps that make up the CI job. They run in sequence.
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
-      # Step 1: Check out the code
-      # This is a standard action that downloads your repository's code onto the runner machine.
-      - name: Check out code
-        uses: actions/checkout@v3
+      # Step 1: Check out the repository code so the workflow can access it.
+      - name: Check out the repo
+        uses: actions/checkout@v4
 
-      # Step 2: Build the Docker containers
-      # This command uses your docker-compose.yml file to build the images for your services (backend and db).
-      # It doesn't run them yet, it just builds them. This is a crucial check to ensure your Dockerfile is valid.
-      - name: Build and start services
-        run: docker compose up --build -d
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-
-      # Step 3: Run tests using pytest
-      # This command starts the services and executes the tests inside the "backend" container.
-      # The "--no-deps" flag tells docker-compose to not rebuild the image, as we just did that in the previous step.
-      # The "pytest" at the end is the command that is run inside the container.
-      - name: Run tests
-        run: docker compose exec backend python manage.py test
-
-      - name: Stop services
-        if: always()
-        run: docker compose down
-
-  #--------------------------------------------------
-  # JOB 2: Continuous Deployment (CD)
-  # The purpose of this job is to build the final Docker image and push it to a registry.
-  # It will only run if the "ci" job completes successfully.
-  #--------------------------------------------------
-  cd:
-    # This sets the name of the job.
-    name: Continuous Deployment
-
-    # This job depends on the "ci" job. It will not start unless "ci" finishes successfully.
-    # This is our safety gate: we only deploy code that has passed all tests.
-    needs: ci
-
-    # This job also runs on an Ubuntu machine.
-    runs-on: ubuntu-latest
-
-    # These are the steps for the deployment job.
-    steps:
-      # Step 1: Check out the code again
-      # Each job runs on a fresh machine, so we need to check out the code again.
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      # Step 2: Log in to Docker Hub
-      # This action securely logs into Docker Hub using secrets you will store in GitHub.
-      # NEVER write your password directly in this file.
+      # Step 2: Log in to Docker Hub.
+      # We use the secrets we configured in the GitHub repository settings.
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # Step 3: Build and push the production Docker image
-      # This step builds your final image and pushes it to Docker Hub.
+      # Step 3: Extract metadata for Docker.
+      # This step automatically creates tags for our image based on the git commit.
+      # For example, it will create a tag with the short commit SHA and a 'latest' tag.
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_HUB_USERNAME }}/resumate
+
+      # Step 4: Build the Docker image and push it to Docker Hub.
+      # This uses the Dockerfile in our repository.
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/resumate:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_USERNAME }}/resumate:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-      # --------------------------------------------------------------------
-      # --- DEPLOYMENT TO SERVER (COMMENTED OUT) ---
-      # The following steps are what you would use to deploy to a real server.
-      # You will need to add secrets for your server's host, username, and SSH key.
-      # --------------------------------------------------------------------
+  # The second job is to deploy the new image to our server.
+  deploy:
+    # This job will only run if the 'build-and-push' job completes successfully.
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: SSH into the Droplet and run the deployment script.
+      - name: Deploy to Droplet
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          # The script that will be executed on the server.
+          script: |
+            # Navigate to the app directory, creating it if it doesn't exist.
+            cd /
+            mkdir -p app
+            cd app
 
-      # - name: Deploy to server
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.SERVER_HOST }}
-      #     username: ${{ secrets.SERVER_USERNAME }}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     script: |
-      #       cd /path/to/your/project
-      #       docker-compose pull
-      #       docker-compose up -d --no-build
-      #       docker-compose exec -T backend python manage.py migrate --noinput
+            # Copy repository files to the server.
+            # We need the docker-compose.prod.yml file.
+            # This is a simple way to get it there. A more robust solution for many
+            # config files might be a separate, private git repo for configuration.
+            git clone https://github.com/${{ github.repository }}.git || (cd ${{ github.event.repository.name }} && git pull)
+            
+            # Create the .env file from GitHub secrets if it doesn't exist.
+            # This is the secure way to handle our production environment variables.
+            # The '|| true' ensures that the command doesn't fail if the file already exists.
+            touch .env || true
+            echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+            echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DB_HOST=db" >> .env
+            echo "DB_PORT=5432" >> .env
+            echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+            echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
+            echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+            echo "PORT=8000" >> .env
+            echo "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}" >> .env
+
+            # Log in to Docker Hub on the server.
+            docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+            
+            # Pull the latest version of our application's image.
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/resumate:latest
+            
+            # Stop the current running containers and start them again with the new image.
+            # Docker Compose will automatically detect the new image and use it.
+            # The '-f' flag specifies the production compose file.
+            # The '-d' flag runs the containers in detached mode.
+            docker compose -f ${{ github.event.repository.name }}/docker-compose.prod.yml up -d
+            
+            # Clean up old, unused Docker images to save disk space.
+            docker image prune -f
