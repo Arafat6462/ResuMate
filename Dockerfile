@@ -27,4 +27,4 @@ EXPOSE 8000
 
 # 7. Set Default Command for Production:
 #    - Run database migrations and start Gunicorn as the production WSGI server.
-CMD ["sh", "-c","print('Hello from Docker!')", "python manage.py migrate && gunicorn ResuMate_backend.wsgi:application --bind 0.0.0.0:$PORT"]
+CMD ["sh", "-c", "python manage.py migrate && gunicorn ResuMate_backend.wsgi:application --bind 0.0.0.0:$PORT"]
