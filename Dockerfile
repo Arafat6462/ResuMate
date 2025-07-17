@@ -21,10 +21,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 #    - Copy the rest of our application's code from our local machine into the container.
 COPY . .
 
-# 6. Expose Port:
+# 6. Collect Static Files:
+#    - Run the collectstatic command to gather all static files into STATIC_ROOT.
+#    - This needs to be done before the application starts.
+RUN python manage.py collectstatic --noinput
+
+# 7. Expose Port:
 #    - Inform Docker that the application inside the container will listen on port 8000.
 EXPOSE 8000
 
-# 7. Set Default Command for Production:
+# 8. Set Default Command for Production:
 #    - Run database migrations and start Gunicorn as the production WSGI server.
 CMD ["sh", "-c", "python manage.py migrate && gunicorn ResuMate_backend.wsgi:application --bind 0.0.0.0:$PORT"]
