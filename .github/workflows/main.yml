@@ -92,14 +92,12 @@ jobs:
             # Log in to Docker Hub on the server.
             docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
             
-            # Pull the latest version of our application's image.
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/resumate:latest
+            # Pull the latest version of our application's image using the git branch name as the tag.
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/resumate:${{ github.ref_name }}
             
             # Stop the current running containers and start them again with the new image.
-            # Docker Compose will automatically detect the new image and use it.
-            # The '-f' flag specifies the production compose file.
-            # The '-d' flag runs the containers in detached mode.
-            docker compose -f ${{ github.event.repository.name }}/docker-compose.prod.yml up -d
+            # We explicitly point to the .env file and the production compose file.
+            docker compose --env-file .env -f ${{ github.event.repository.name }}/docker-compose.prod.yml up -d
             
             # Clean up old, unused Docker images to save disk space.
             docker image prune -f
