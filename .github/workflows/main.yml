@@ -3,9 +3,9 @@ name: CI/CD for ResuMate
 
 # This section defines when the workflow will run.
 on:
-  # We want it to run on every push to the 'main' branch.
+  # We want it to run on every push to the 'master' branch.
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel.
 jobs:
