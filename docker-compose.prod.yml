@@ -1,8 +1,8 @@
 services:
   backend:
-    # In production, we pull the pre-built image from Docker Hub
-    # instead of building it from the Dockerfile.
-    image: arafat6462/resumate:latest # <-- Corrected to your Docker Hub username.
+    # The image name and tag are now dynamic. The tag will be passed in
+    # as an environment variable from our CI/CD script.
+    image: arafat6462/resumate:${IMAGE_TAG:-latest}
     container_name: resumate_backend_prod
     restart: always # Ensures the container restarts if it crashes or the server reboots
     # The command is now taken from the Dockerfile's CMD instruction.

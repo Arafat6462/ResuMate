@@ -95,9 +95,9 @@ jobs:
             # Pull the latest version of our application's image using the git branch name as the tag.
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/resumate:${{ github.ref_name }}
             
-            # Stop the current running containers and start them again with the new image.
-            # We explicitly point to the .env file and the production compose file.
-            docker compose --env-file .env -f ${{ github.event.repository.name }}/docker-compose.prod.yml up -d
+            # Set the IMAGE_TAG environment variable and run docker compose.
+            # This tells the compose file which specific image tag to use.
+            IMAGE_TAG=${{ github.ref_name }} docker compose --env-file .env -f ${{ github.event.repository.name }}/docker-compose.prod.yml up -d
             
             # Clean up old, unused Docker images to save disk space.
             docker image prune -f
