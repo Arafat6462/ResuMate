@@ -34,6 +34,13 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 # The list comprehension strips any whitespace from each host.
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', '').split(',')]
 
+# Trust the X-Forwarded-Proto header from our Nginx proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Trust our domain for CSRF purposes when using HTTPS
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host]
+
+
 
 # Application definition
 
