@@ -74,20 +74,20 @@ jobs:
             # config files might be a separate, private git repo for configuration.
             git clone https://github.com/${{ github.repository }}.git || (cd ${{ github.event.repository.name }} && git pull)
             
-            # Create the .env file from GitHub secrets if it doesn't exist.
-            # This is the secure way to handle our production environment variables.
-            # The '|| true' ensures that the command doesn't fail if the file already exists.
-            touch .env || true
-            echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-            echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            echo "DB_HOST=db" >> .env
-            echo "DB_PORT=5432" >> .env
-            echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
-            echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
-            echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-            echo "PORT=8000" >> .env
-            echo "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}" >> .env
+            # Create the .env file inside the project directory using a heredoc.
+            # This overwrites the file on each deployment, preventing duplicate entries.
+            cat <<EOF > ${{ github.event.repository.name }}/.env
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_HOST=db
+            DB_PORT=5432
+            GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+            OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            PORT=8000
+            ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
+            EOF
 
             # Log in to Docker Hub on the server.
             docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -96,8 +96,8 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/resumate:${{ github.ref_name }}
             
             # Set the IMAGE_TAG environment variable and run docker compose.
-            # This tells the compose file which specific image tag to use.
-            IMAGE_TAG=${{ github.ref_name }} docker compose --env-file .env -f ${{ github.event.repository.name }}/docker-compose.prod.yml up -d
+            # The compose file will now automatically load the .env file from its directory.
+            IMAGE_TAG=${{ github.ref_name }} docker compose -f ${{ github.event.repository.name }}/docker-compose.prod.yml up -d
             
             # Clean up old, unused Docker images to save disk space.
             docker image prune -f

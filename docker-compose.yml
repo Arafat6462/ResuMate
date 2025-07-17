@@ -14,11 +14,20 @@ services:
       db:
         condition: service_healthy
     environment:
+      # --- Development Settings ---
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+
+      # --- Database Settings ---
       - DB_NAME=resumate_db
       - DB_USER=resumate_user
       - DB_PASSWORD=resumate_password
       - DB_HOST=db
       - DB_PORT=5432
+
+      # --- API Keys & Secrets ---
+      # For local development, these can be loaded from a .env file
+      # located in the same directory as this docker-compose.yml file.
       - GEMINI_API_KEY
       - OPENROUTER_API_KEY
       - SECRET_KEY

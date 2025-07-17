@@ -31,7 +31,8 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 # Defines the list of allowed hosts for the application.
 # This is a security measure to prevent HTTP Host header attacks.
 # It's loaded from an environment variable, which should be a comma-separated string.
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+# The list comprehension strips any whitespace from each host.
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', '').split(',')]
 
 
 # Application definition

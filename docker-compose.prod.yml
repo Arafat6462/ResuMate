@@ -7,22 +7,18 @@ services:
     restart: always # Ensures the container restarts if it crashes or the server reboots
     # The command is now taken from the Dockerfile's CMD instruction.
     # We remove the local volume mount to ensure we run the code baked into the image.
+    env_file:
+      - ./.env
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
     environment:
-      # These will be loaded from a .env file on the server
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - SECRET_KEY=${SECRET_KEY}
-      - PORT=${PORT}
+      # We can still define environment variables here.
+      # These will override any variables set in the .env file.
+      # We set the IMAGE_TAG here, which is passed from the CI script.
+      - IMAGE_TAG=${IMAGE_TAG}
 
   db:
     image: postgres:16
@@ -30,10 +26,8 @@ services:
     restart: always
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    env_file:
+      - ./.env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
