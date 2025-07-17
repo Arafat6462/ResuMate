@@ -23,8 +23,9 @@ COPY . .
 
 # 6. Collect Static Files:
 #    - Run the collectstatic command to gather all static files into STATIC_ROOT.
-#    - This needs to be done before the application starts.
-RUN python manage.py collectstatic --noinput
+#    - We provide a dummy SECRET_KEY at build time because Django needs it to run,
+#    - but the real key will be provided at runtime.
+RUN SECRET_KEY=dummy-key-for-collectstatic python manage.py collectstatic --noinput
 
 # 7. Expose Port:
 #    - Inform Docker that the application inside the container will listen on port 8000.
