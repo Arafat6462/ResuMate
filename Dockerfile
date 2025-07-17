@@ -30,6 +30,12 @@ RUN python manage.py collectstatic --noinput
 #    - Inform Docker that the application inside the container will listen on port 8000.
 EXPOSE 8000
 
-# 8. Set Default Command for Production:
-#    - Run database migrations and start Gunicorn as the production WSGI server.
-CMD ["sh", "-c", "python manage.py migrate && gunicorn ResuMate_backend.wsgi:application --bind 0.0.0.0:$PORT"]
+# 8. Copy and Set Up Entrypoint Script
+#    - Copy the entrypoint script into the container.
+#    - Make the script executable.
+COPY entrypoint.sh .
+RUN chmod +x /app/entrypoint.sh
+
+# 9. Set Default Command for Production:
+#    - Use the entrypoint script to run migrations and start the server.
+CMD ["/app/entrypoint.sh"]
