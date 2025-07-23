@@ -20,4 +20,4 @@ python manage.py create_example_jobs
 
 # Start the Gunicorn web server
 echo "Starting Gunicorn server..."
-exec gunicorn ResuMate_backend.wsgi:application --bind 0.0.0.0:$PORT
+exec gunicorn ResuMate_backend.wsgi:application --bind 0.0.0.0:$PORT --worker-class gevent --workers 3

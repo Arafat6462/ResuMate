@@ -4,6 +4,7 @@ djangorestframework
 psycopg2-binary
 python-dotenv
 gunicorn
+gevent
 
 # JWT Authentication
 djangorestframework-simplejwt
