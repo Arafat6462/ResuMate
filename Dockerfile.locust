@@ -1,0 +1,16 @@
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
+
+# Set the working directory in the container
+WORKDIR /mnt/locust
+
+# Install Locust
+RUN pip install locust
+
+# Copy the Locust test file into the container
+COPY locustfile.py .
+
+# The command to run when the container launches
+# We expose the web UI on port 8089
+ENTRYPOINT [ "locust" ]
+CMD [ "-f", "locustfile.py" ]

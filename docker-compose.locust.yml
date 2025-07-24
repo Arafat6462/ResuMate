@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  locust-tester:
+    build:
+      context: .
+      dockerfile: Dockerfile.locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locustfile.py:/mnt/locust/locustfile.py
+      - ./test-results:/mnt/locust/test-results
+    command: -f /mnt/locust/locustfile.py --host https://arafat2.me
