@@ -8,11 +8,14 @@ class AIModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = AIModel
         fields = [
-            'display_name',
+            'model_name',
             'login_required',
             'response_time_info',
             'description',
         ]
+        extra_kwargs = {
+            'model_name': {'source': 'display_name'}
+        }
 
 class ResumeGenerationSerializer(serializers.Serializer):
     """
