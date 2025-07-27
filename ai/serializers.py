@@ -9,9 +9,9 @@ class AIModelSerializer(serializers.ModelSerializer):
         model = AIModel
         fields = [
             'display_name',
-            'description',
-            'response_time_info',
             'login_required',
+            'response_time_info',
+            'description',
         ]
 
 class ResumeGenerationSerializer(serializers.Serializer):
