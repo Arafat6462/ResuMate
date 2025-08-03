@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -11,12 +12,25 @@ from .services import generate_resume_content
 class ListAIModelsView(APIView):
     """
     Lists all active AI models available for use.
+    This view is cached for 1 hour to reduce database load.
     """
     permission_classes = [AllowAny]
+    CACHE_KEY = "ai_models_list"
+    CACHE_TIMEOUT = 10  # 1 hour in seconds
 
     def get(self, request, *args, **kwargs):
+        # Try to get the data from the cache first
+        cached_data = cache.get(self.CACHE_KEY)
+        if cached_data:
+            return Response(cached_data)
+
+        # If not in cache, fetch from DB
         active_models = AIModel.objects.filter(is_active=True)
         serializer = AIModelSerializer(active_models, many=True)
+        
+        # Save the serialized data to the cache for next time
+        cache.set(self.CACHE_KEY, serializer.data, self.CACHE_TIMEOUT)
+        
         return Response(serializer.data)
 
 class GenerateResumeView(APIView):
