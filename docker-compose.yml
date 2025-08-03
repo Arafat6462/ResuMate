@@ -62,6 +62,7 @@ services:
     image: redis:alpine
     container_name: resumate_redis
     restart: always
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
 

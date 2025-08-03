@@ -40,6 +40,7 @@ services:
     image: redis:alpine
     container_name: resumate_redis_prod
     restart: always
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data_prod:/data
 
