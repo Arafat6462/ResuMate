@@ -47,15 +47,23 @@ class ExampleJobApplicationViewSet(viewsets.ReadOnlyModelViewSet):
         # Try to get the data from the cache first
         cached_data = cache.get(self.CACHE_KEY)
         if cached_data:
-            # Cache Hit: Return cached data with a custom header
-            return Response(cached_data, headers={'X-Cache-Status': 'HIT'})
+            # Cache Hit: Add status and return
+            response_data = {
+                'cache_status': 'HIT (Response from Redis cache)',
+                'data': cached_data
+            }
+            return Response(response_data, headers={'X-Cache-Status': 'HIT'})
 
         # Cache Miss: Fetch from DB
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         
-        # Save the serialized data to the cache for next time
+        # Save the raw serialized data to the cache
         cache.set(self.CACHE_KEY, serializer.data, self.CACHE_TIMEOUT)
         
-        # Return new data with a custom header
-        return Response(serializer.data, headers={'X-Cache-Status': 'MISS'})
+        # Prepare response body with status
+        response_data = {
+            'cache_status': 'MISS (Response from database)',
+            'data': serializer.data
+        }
+        return Response(response_data, headers={'X-Cache-Status': 'MISS'})
