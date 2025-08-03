@@ -82,6 +82,8 @@ jobs:
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_HOST=db
             DB_PORT=5432
+            REDIS_HOST=redis
+            REDIS_PORT=6379
             GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
             OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
             SECRET_KEY=${{ secrets.SECRET_KEY }}

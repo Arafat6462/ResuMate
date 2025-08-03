@@ -14,6 +14,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       # We can still define environment variables here.
       # These will override any variables set in the .env file.
@@ -34,5 +36,13 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:alpine
+    container_name: resumate_redis_prod
+    restart: always
+    volumes:
+      - redis_data_prod:/data
+
 volumes:
   postgres_data_prod:
+  redis_data_prod:
