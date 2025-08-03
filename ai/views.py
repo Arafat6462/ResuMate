@@ -23,7 +23,7 @@ class ListAIModelsView(APIView):
         cached_data = cache.get(self.CACHE_KEY)
         if cached_data:
             return Response({
-                "data_source": "Redis (Response from Redis cache)",
+                "cache_status": "hit (Response from Redis cache)",
                 "data": cached_data
             })
 
@@ -35,7 +35,7 @@ class ListAIModelsView(APIView):
         cache.set(self.CACHE_KEY, serializer.data, self.CACHE_TIMEOUT)
         
         return Response({
-            "data_source": "DB (Response from database)",
+            "cache_status": "miss (Response from database)",
             "data": serializer.data
         })
 
