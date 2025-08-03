@@ -22,7 +22,10 @@ class ListAIModelsView(APIView):
         # Try to get the data from the cache first
         cached_data = cache.get(self.CACHE_KEY)
         if cached_data:
-            return Response(cached_data)
+            return Response({
+                "message": "Response from Redis cache.",
+                "data": cached_data
+            })
 
         # If not in cache, fetch from DB
         active_models = AIModel.objects.filter(is_active=True)
@@ -31,7 +34,10 @@ class ListAIModelsView(APIView):
         # Save the serialized data to the cache for next time
         cache.set(self.CACHE_KEY, serializer.data, self.CACHE_TIMEOUT)
         
-        return Response(serializer.data)
+        return Response({
+            "message": "Response from database.",
+            "data": serializer.data
+        })
 
 class GenerateResumeView(APIView):
     """
