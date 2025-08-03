@@ -16,14 +16,14 @@ class ListAIModelsView(APIView):
     """
     permission_classes = [AllowAny]
     CACHE_KEY = "ai_models_list"
-    CACHE_TIMEOUT = 10  # 1 hour in seconds
+    CACHE_TIMEOUT = 60 * 60  # 1 hour in seconds
 
     def get(self, request, *args, **kwargs):
         # Try to get the data from the cache first
         cached_data = cache.get(self.CACHE_KEY)
         if cached_data:
             return Response({
-                "message": "Response from Redis cache.",
+                "data_source": "Redis (Response from Redis cache)",
                 "data": cached_data
             })
 
@@ -35,7 +35,7 @@ class ListAIModelsView(APIView):
         cache.set(self.CACHE_KEY, serializer.data, self.CACHE_TIMEOUT)
         
         return Response({
-            "message": "Response from database.",
+            "data_source": "DB (Response from database)",
             "data": serializer.data
         })
 
