@@ -20,3 +20,4 @@ google-genai
 pytest
 pytest-django
 whitenoise
+django-redis

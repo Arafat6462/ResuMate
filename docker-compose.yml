@@ -13,6 +13,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       # --- Development Settings ---
       - DEBUG=True
@@ -24,6 +26,10 @@ services:
       - DB_PASSWORD=resumate_password
       - DB_HOST=db
       - DB_PORT=5432
+
+      # --- Redis Settings ---
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 
       # --- API Keys & Secrets ---
       # For local development, these can be loaded from a .env file
@@ -51,6 +57,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  
+  redis:
+    image: redis:alpine
+    container_name: resumate_redis
+    restart: always
+    ports:
+      - "6379:6379"
 
 volumes:
   postgres_data:
