@@ -44,6 +44,24 @@ services:
     volumes:
       - redis_data_prod:/data
 
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - GENERIC_TIMEZONE=Asia/Dhaka
+    volumes:
+      - n8n_data:/home/node/.n8n
+
 volumes:
   postgres_data_prod:
   redis_data_prod:
+  n8n_data:
