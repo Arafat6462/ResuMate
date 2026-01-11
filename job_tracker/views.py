@@ -45,7 +45,8 @@ class ExampleJobApplicationViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         # Try to get the data from the cache first
-        cached_data = cache.get(self.CACHE_KEY)
+        # cached_data = cache.get(self.CACHE_KEY)
+        cached_data = False  # Disable cache for testing purposes
         if cached_data:
             # Cache Hit: Add status and return
             response_data = {
